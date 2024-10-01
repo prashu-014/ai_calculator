@@ -11,6 +11,11 @@ module.exports = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      theme: {
+        container: {
+          center: true,
+        },
+      },
     },
   },
   plugins: [],

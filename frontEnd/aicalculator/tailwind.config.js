@@ -11,6 +11,9 @@ module.exports = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      cursor: {
+        'fancy': 'url(hand.cur), pointer',
+      },
       theme: {
         container: {
           center: true,

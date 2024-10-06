@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 
+
 const colors = [
     {
         id:1,
@@ -31,13 +32,22 @@ const colors = [
 
 const Color = () => {
     const [color ,setcolor ] = useState("#fff");
-    console.log(color);
+    const [active,setActive] = useState("#ff0000");
+  
+
+    const handleColor = (color)=>{
+        setcolor(color)
+        
+        setActive(color)
+      
+        
+    }
     
   return (
-    <div >
+    <div className='flex  items-center'>
         {
             colors.map((color,i)=>(
-                <button className="w-7 h-7 mx-2 rounded-l" style={{ backgroundColor: color.name }} key={i} onClick={()=>setcolor(color.name)}>1</button>
+                <button className={`${active === color.name ? ("border-2 border-slate-50"): ""} w-7 h-7 mx-2 rounded-full `} style={{ backgroundColor: color.name }} key={i} onClick={()=>handleColor(color.name)}></button>
             ))
         }
     </div>

@@ -18,20 +18,20 @@ const Navbar = () => {
   
 
   return (
-    <div className="grid grid-cols-2 gap-4 grid-flow-col justify-between items-center py-3 px-4 bg-zinc-900 relative">
-      <div>
+    <div className="flex gap-2 md:justify-between items-center py-1 md:py-3 px-4 bg-zinc-900 relative ">
+      
         <Image
           src={MenuIcon}
           alt="menubar"
-          width={40}
-          height={40}
+          width={35}
+          height={35}
           className="bg-slate-50 rounded-md cursor-pointer"
           onClick={() => setSideBar(!sideBar)}
         />
-      </div>
+      
       <Logo />
 
-      <div className="flex gap-3 ">
+      <div className="  hidden md:flex md:gap-2 justify-end">
         <Color />
         <Brush />
       </div>

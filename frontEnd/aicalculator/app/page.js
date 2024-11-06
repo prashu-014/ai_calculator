@@ -5,7 +5,7 @@ import Main from "./compoents/Main";
 export default function Home() {
   return (
     <>
-      <div className="xl:container xl:mx-auto">
+      <div className="xxl:container xl:mx-auto">
         <Navbar />
         <Main />
       </div>

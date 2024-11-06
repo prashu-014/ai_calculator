@@ -1,33 +1,28 @@
-"use client";
+"use client"
+
 import { ReactSketchCanvas } from "react-sketch-canvas";
 import React, { useRef, useState } from "react";
 import Button from "./Button";
 
 import { GrPowerReset } from "react-icons/gr";
-import { MdOutlineUndo,MdOutlineRedo } from "react-icons/md";
-import { CiEraser } from "react-icons/ci";
+import { MdOutlineUndo, MdOutlineRedo } from "react-icons/md";
+import axios from "axios";
 
 const Main = () => {
   const canvasRef = useRef(null);
-
-
-  const eraserWidth = 100;
-  
   const [eraseMode, setEraseMode] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(false);
 
-  
 
   const handleResetCanvas = () => {
     if (canvasRef.current) {
-      canvasRef.current.resetCanvas(); // Reset the canvas
+      canvasRef.current.resetCanvas();
       setEraseMode(false);
       canvasRef.current?.eraseMode(false);
     }
   };
 
   const handleUndoClick = () => {
-    
     canvasRef.current?.undo();
   };
 
@@ -35,82 +30,73 @@ const Main = () => {
     canvasRef.current?.redo();
   };
 
-  const handleEraserClick = () => {
-    setEraseMode(true);
-    // setCursorIsPointer("cursor-wait")
-    canvasRef.current?.eraseMode(true);
-  };
-
-
-
-  const resizeImage = (base64Str, maxWidth, callback) => {
-    let img = new Image();
-    img.src = base64Str;
-
-    img.onload = () => {
-      
-      // Create a canvas element for resizing the image
-      let canvas = document.createElement('canvas');
-      let ctx = canvas.getContext('2d');
-
-      // Calculate the scaling factor to maintain the aspect ratio
-      const scaleFactor = maxWidth / img.width;
-      canvas.width = maxWidth;
-      canvas.height = img.height * scaleFactor;
-
-      // Draw the resized image onto the new canvas
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      // Convert the resized image back to Base64 format
-      const resizedImage = canvas.toDataURL('image/png');
-      callback(resizedImage);
-    };
-  };
-
   const handleExport = async () => {
+    setIsLoading(true);
     try {
-      // Export the current canvas as a Base64 image
-      const imageData = await canvasRef.current.exportImage('png');
+      const canvasDataUrl = await canvasRef.current.exportImage("png");
 
-      // Set the desired width for export (e.g., 800px)
-      const desiredWidth = 800;
+      const base64Data = canvasDataUrl.split(",")[1];
 
-      // Resize the exported image
-      resizeImage(imageData, desiredWidth, (resizedImage) => {
-        // The resized image is available here as a Base64 string
+      const imageBlob = base64ToBlob(base64Data, "image/png");
 
+      const formData = new FormData();
+      formData.append("file", imageBlob, "canvasImage.png");
 
-        console.log(resizedImage);
-        
+      const response = await axios.post("http://localhost:3004/math", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
+
+      console.log("AI Response:", response.data);
+      alert(`AI Response: ${response.data.result}`);
     } catch (error) {
-      console.error('Error exporting image:', error);
+      console.error("Error processing image:", error);
+      alert("Failed to process the image.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Helper function to convert Base64 to Blob
+  const base64ToBlob = (base64, mimeType) => {
+    const binaryString = window.atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return new Blob([bytes], { type: mimeType });
+  };
+  
+
+
   return (
-    <div className="h-dvh relative">
+    <div className="h-dvh relative xxl:container w-dvw">
       <ReactSketchCanvas
-        ref={canvasRef} // Attach ref to the ReactSketchCanvas component
+        ref={canvasRef}
         width="100%"
         height="100%"
         canvasColor="black"
         strokeColor="#fff"
-        strokeWidth={4} // You can adjust the stroke width if needed
-        className={`${eraseMode ? ("cursor-[url(https://cdn-icons-png.flaticon.com/128/3219/3219014.png),_pointer] bg-slate-100") : ""}`}
-        eraserWidth={eraserWidth}
+        strokeWidth={4}
+        eraserWidth={100}
+        className={`${eraseMode ? "cursor-[url(https://cdn-icons-png.flaticon.com/128/3219/3219014.png),_pointer] bg-slate-100" : ""}`}
+        style={{ border: "none" }}
       />
 
       <div className="absolute top-0 end-0">
-        <Button name={<GrPowerReset />} event={handleResetCanvas}  />
+        <Button name={<GrPowerReset />} event={handleResetCanvas} />
         <Button name={<MdOutlineUndo />} event={handleUndoClick} />
         <Button name={<MdOutlineRedo />} event={handleRedoClick} />
-        <Button name={<CiEraser />} event={handleEraserClick} eraserWidth={eraserWidth} eraseMode={eraseMode} disabled={eraseMode}/>
       </div>
 
-      <div className="absolute top-8 end-0 ">
-      <Button event={handleExport} name="Run" />
+      <div className="absolute top-8 end-0">
+        <button onClick={handleExport} className="border border-zinc-600 px-5 py-1" disabled={isLoading}>
+          {isLoading ? "Loading..." : "Generate Solution"}
+        </button>
       </div>
+
     </div>
   );
 };

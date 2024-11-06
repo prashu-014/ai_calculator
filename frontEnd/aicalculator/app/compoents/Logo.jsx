@@ -4,9 +4,9 @@ import logo from ".././logo1.png.png"
 
 const Logo = () => {
   return (
-    <div className=''>
-      <Image src={logo} alt="logo.png" width={110} />
-    </div>
+   <>
+      <Image src={logo} alt="logo.png" width={110} height={100} />
+    </>
   )
 }
 
